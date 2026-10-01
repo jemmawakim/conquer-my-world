@@ -17,7 +17,22 @@ function matchesPrefix(pathname: string, prefixes: readonly string[]): boolean {
 
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
   let response = NextResponse.next({ request });
-  const { url, publishableKey } = getSupabaseEnv();
+
+  let env: ReturnType<typeof getSupabaseEnv>;
+  try {
+    env = getSupabaseEnv();
+  } catch (error) {
+    // Fail closed: protected routes are unavailable without auth config,
+    // public pages still render (and report the misconfiguration).
+    if (matchesPrefix(request.nextUrl.pathname, PROTECTED_ROUTE_PREFIXES)) {
+      console.error(error);
+      return new NextResponse("Service unavailable: authentication is not configured.", {
+        status: 503,
+      });
+    }
+    return response;
+  }
+  const { url, publishableKey } = env;
 
   const supabase = createServerClient<Database>(url, publishableKey, {
     cookies: {
