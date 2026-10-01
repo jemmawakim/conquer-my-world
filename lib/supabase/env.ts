@@ -1,12 +1,18 @@
 import { z } from "zod";
 
 const supabaseEnvSchema = z.object({
-  url: z.url({ message: "NEXT_PUBLIC_SUPABASE_URL must be a valid URL" }),
+  url: z.url({
+    error: (issue) =>
+      issue.input === undefined
+        ? "NEXT_PUBLIC_SUPABASE_URL is not set"
+        : "NEXT_PUBLIC_SUPABASE_URL is not a valid URL",
+  }),
   publishableKey: z
-    .string()
+    .string({
+      error: "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY) is not set",
+    })
     .min(1, {
-      message:
-        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY) is required",
+      error: "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY) is empty",
     }),
 });
 
@@ -31,7 +37,9 @@ export function getSupabaseEnv(): SupabaseEnv {
 
   if (!parsed.success) {
     const details = parsed.error.issues.map((issue) => issue.message).join("; ");
-    throw new Error(`Invalid Supabase environment: ${details}. See .env.example.`);
+    throw new Error(
+      `Invalid Supabase environment: ${details}. Add them in Vercel → Settings → Environment Variables (see .env.example).`,
+    );
   }
 
   cached = parsed.data;
