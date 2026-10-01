@@ -11,6 +11,7 @@ cp .env.example .env.local      # fill in your Supabase URL + publishable key
 npm install
 npx supabase link --project-ref <your-project-ref>
 npx supabase db push            # applies supabase/migrations
+# …or paste supabase/setup.sql into Supabase → SQL Editor → Run
 npm run dev
 ```
 
@@ -29,7 +30,9 @@ npm run dev
 │   │   ├── actions.ts                    # updateProfile server action
 │   │   ├── error.tsx
 │   │   ├── loading.tsx
-│   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   └── warranty/                     # /user-dashboard/warranty — serial-number activation
+│   ├── weird-lab/                        # /weird-lab — stack smoke-test page
 │   ├── error.tsx · global-error.tsx · loading.tsx · not-found.tsx
 │   ├── globals.css                       # Tailwind v4 + design tokens
 │   ├── layout.tsx
@@ -38,6 +41,8 @@ npm run dev
 │   ├── ui/                               # Shadcn primitives (Button, Input, Label, …)
 │   ├── auth/                             # AuthCard, SignInForm, SignUpForm
 │   ├── dashboard/                        # ProfileForm
+│   ├── warranty/                         # WarrantyForm, WarrantyList
+│   ├── lab/                              # Weird Lab experiments
 │   └── marketing/                        # HeroSection (Motion)
 ├── lib/                                  # camelCase files
 │   ├── supabase/
@@ -57,7 +62,10 @@ npm run dev
 │   ├── supabase.ts                       # DbRow / Entity / UserProfile helpers
 │   ├── caseMapping.ts                    # Type-level SnakeToCamel / CamelToSnake
 │   └── actions.ts                        # ActionResult
-├── supabase/migrations/                  # SQL migrations — every table enables RLS
+├── supabase/
+│   ├── migrations/                       # SQL migrations — every table enables RLS
+│   └── setup.sql                         # All migrations in one file (`npm run db:bundle`)
+├── scripts/bundleMigrations.mjs
 ├── middleware.ts                         # Edge middleware entry
 └── CLAUDE.md                             # Project rules
 ```

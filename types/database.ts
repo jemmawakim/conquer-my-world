@@ -34,6 +34,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      warranty_registrations: {
+        Row: {
+          id: string;
+          user_id: string;
+          product_name: string;
+          serial_number: string;
+          purchase_date: string;
+          retailer: string | null;
+          warranty_months: number;
+          expires_on: string;
+          activated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          product_name: string;
+          serial_number: string;
+          purchase_date: string;
+          retailer?: string | null;
+          warranty_months?: number;
+          expires_on?: never;
+          activated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          product_name?: string;
+          serial_number?: string;
+          purchase_date?: string;
+          retailer?: string | null;
+          warranty_months?: number;
+          expires_on?: never;
+          activated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

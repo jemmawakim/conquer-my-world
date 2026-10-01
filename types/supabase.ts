@@ -19,3 +19,4 @@ export type EntityInsert<T extends TableName> = CamelCasedKeys<DbInsert<T>>;
 export type EntityUpdate<T extends TableName> = CamelCasedKeys<DbUpdate<T>>;
 
 export type UserProfile = Entity<"user_profiles">;
+export type WarrantyRegistration = Entity<"warranty_registrations">;

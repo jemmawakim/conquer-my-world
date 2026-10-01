@@ -1,4 +1,6 @@
+import { ShieldCheck } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOut } from "@/app/(auth)/actions";
 import { ProfileForm } from "@/components/dashboard/ProfileForm";
@@ -38,11 +40,19 @@ export default async function UserDashboardPage() {
           </h1>
           <p className="text-muted-foreground text-sm">Signed in as {user.email}</p>
         </div>
-        <form action={signOut}>
-          <Button type="submit" variant="outline">
-            Sign out
+        <div className="flex gap-2">
+          <Button asChild>
+            <Link href="/user-dashboard/warranty">
+              <ShieldCheck aria-hidden="true" />
+              Activate a warranty
+            </Link>
           </Button>
-        </form>
+          <form action={signOut}>
+            <Button type="submit" variant="outline">
+              Sign out
+            </Button>
+          </form>
+        </div>
       </header>
 
       <section className="border-border bg-card text-card-foreground rounded-xl border p-6 shadow-sm">

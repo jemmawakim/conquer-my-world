@@ -13,7 +13,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
-    "db:types": "supabase gen types typescript --linked --schema public > types/database.ts"
+    "db:types": "supabase gen types typescript --linked --schema public > types/database.ts",
+    "db:bundle": "node scripts/bundleMigrations.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
