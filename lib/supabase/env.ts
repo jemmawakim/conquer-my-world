@@ -4,7 +4,10 @@ const supabaseEnvSchema = z.object({
   url: z.url({ message: "NEXT_PUBLIC_SUPABASE_URL must be a valid URL" }),
   publishableKey: z
     .string()
-    .min(1, { message: "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required" }),
+    .min(1, {
+      message:
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY) is required",
+    }),
 });
 
 export type SupabaseEnv = z.infer<typeof supabaseEnvSchema>;
@@ -21,7 +24,9 @@ export function getSupabaseEnv(): SupabaseEnv {
 
   const parsed = supabaseEnvSchema.safeParse({
     url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    publishableKey: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    // The Vercel ↔ Supabase integration may only provide the legacy anon key.
+    publishableKey:
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   });
 
   if (!parsed.success) {
