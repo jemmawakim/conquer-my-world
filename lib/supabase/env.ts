@@ -29,10 +29,14 @@ export function getSupabaseEnv(): SupabaseEnv {
   if (cached) return cached;
 
   const parsed = supabaseEnvSchema.safeParse({
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    // The Vercel ↔ Supabase integration may only provide the legacy anon key.
+    // Fallbacks cover the Vercel ↔ Supabase integration, which may add a custom
+    // prefix (this project uses HUH_) and may only provide the legacy anon key.
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? process.env.NEXT_PUBLIC_HUH_SUPABASE_URL,
     publishableKey:
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_HUH_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+      process.env.NEXT_PUBLIC_HUH_SUPABASE_ANON_KEY,
   });
 
   if (!parsed.success) {
