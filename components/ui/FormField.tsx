@@ -12,7 +12,7 @@ type FormFieldProps = {
 /** Label + control + accessible error message. The control must set `aria-describedby`. */
 export function FormField({ id, label, error, description, children }: FormFieldProps) {
   return (
-    <div className="grid gap-2">
+    <div className="grid content-start gap-2">
       <Label htmlFor={id}>{label}</Label>
       {children}
       {description && !error ? (

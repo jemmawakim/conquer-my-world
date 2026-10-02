@@ -1,14 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { CalendarDays, Loader2, Package, ScanBarcode, ShieldCheck, Store } from "lucide-react";
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { activateWarranty } from "@/app/user-dashboard/warranty/actions";
 import { Button } from "@/components/ui/Button";
 import { describedBy, FormField } from "@/components/ui/FormField";
 import { FormMessage } from "@/components/ui/FormMessage";
-import { Input } from "@/components/ui/Input";
+import { IconInput } from "@/components/ui/IconInput";
+import { WarrantyCard, type WarrantyCardDetails } from "@/components/warranty/WarrantyCard";
 import {
   warrantySchema,
   type WarrantyFormValues,
@@ -17,19 +18,18 @@ import {
 
 type Feedback = { tone: "success" | "error"; message: string } | null;
 
-const EMPTY_FORM: WarrantyFormValues = {
-  productName: "",
-  serialNumber: "",
-  purchaseDate: "",
-  retailer: "",
-};
-
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function emptyForm(): WarrantyFormValues {
+  return { productName: "", serialNumber: "", purchaseDate: todayIso(), retailer: "" };
+}
+
 export function WarrantyForm() {
   const [feedback, setFeedback] = useState<Feedback>(null);
+  // Snapshot of the last activated warranty, shown on the card until the user types again.
+  const [activatedCard, setActivatedCard] = useState<WarrantyCardDetails | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -37,18 +37,34 @@ export function WarrantyForm() {
     handleSubmit,
     setError,
     reset,
+    control,
     formState: { errors },
   } = useForm<WarrantyFormValues, unknown, WarrantyValues>({
     resolver: zodResolver(warrantySchema),
-    defaultValues: EMPTY_FORM,
+    defaultValues: emptyForm(),
   });
+
+  const [productName = "", serialNumber = "", purchaseDate = ""] = useWatch({
+    control,
+    name: ["productName", "serialNumber", "purchaseDate"],
+  });
+
+  const isDirtySinceActivation =
+    activatedCard !== null && (productName !== "" || serialNumber !== "");
+  const showActivated = activatedCard !== null && !isDirtySinceActivation;
+  const cardDetails = showActivated ? activatedCard : { productName, serialNumber, purchaseDate };
 
   const onSubmit = handleSubmit((values) => {
     setFeedback(null);
     startTransition(async () => {
       const result = await activateWarranty({ ...values, retailer: values.retailer ?? "" });
       if (result.ok) {
-        reset(EMPTY_FORM);
+        setActivatedCard({
+          productName: values.productName,
+          serialNumber: values.serialNumber,
+          purchaseDate: values.purchaseDate,
+        });
+        reset(emptyForm());
         setFeedback({ tone: "success", message: result.message });
         return;
       }
@@ -61,78 +77,99 @@ export function WarrantyForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate className="grid gap-5">
-      {feedback ? <FormMessage tone={feedback.tone} message={feedback.message} /> : null}
+    <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-14">
+      <div className="grid gap-4 lg:sticky lg:top-10">
+        <WarrantyCard details={cardDetails} activated={showActivated} />
+        <p className="text-muted-foreground text-center text-xs">
+          Live preview: your card fills in as you type.
+        </p>
+      </div>
 
-      <FormField id="productName" label="Product name" error={errors.productName?.message}>
-        <Input
-          id="productName"
-          placeholder="e.g. Aurora Wireless Headphones"
-          aria-invalid={Boolean(errors.productName)}
-          aria-describedby={describedBy("productName", Boolean(errors.productName))}
-          disabled={isPending}
-          {...register("productName")}
-        />
-      </FormField>
-
-      <FormField
-        id="serialNumber"
-        label="Serial number"
-        error={errors.serialNumber?.message}
-        description="Printed on the box, the receipt or the back of the device. Spaces are ignored."
+      <form
+        onSubmit={onSubmit}
+        noValidate
+        className="border-border bg-card/80 text-card-foreground grid gap-6 rounded-2xl border p-6 shadow-xl shadow-black/5 backdrop-blur-sm sm:p-8"
       >
-        <Input
-          id="serialNumber"
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          placeholder="e.g. AWH-2026-7F3K9Q"
-          className="font-mono uppercase"
-          aria-invalid={Boolean(errors.serialNumber)}
-          aria-describedby={describedBy("serialNumber", Boolean(errors.serialNumber))}
-          disabled={isPending}
-          {...register("serialNumber")}
-        />
-      </FormField>
+        {feedback ? <FormMessage tone={feedback.tone} message={feedback.message} /> : null}
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <FormField id="purchaseDate" label="Purchase date" error={errors.purchaseDate?.message}>
-          <Input
-            id="purchaseDate"
-            type="date"
-            max={todayIso()}
-            aria-invalid={Boolean(errors.purchaseDate)}
-            aria-describedby={describedBy("purchaseDate", Boolean(errors.purchaseDate))}
+        <FormField id="productName" label="Product name" error={errors.productName?.message}>
+          <IconInput
+            id="productName"
+            icon={Package}
+            placeholder="Aurora Wireless Headphones"
+            aria-invalid={Boolean(errors.productName)}
+            aria-describedby={describedBy("productName", Boolean(errors.productName))}
             disabled={isPending}
-            {...register("purchaseDate")}
+            {...register("productName")}
           />
         </FormField>
 
         <FormField
-          id="retailer"
-          label="Where did you buy it?"
-          error={errors.retailer?.message}
-          description="Optional"
+          id="serialNumber"
+          label="Serial number"
+          error={errors.serialNumber?.message}
+          description="On the box, the receipt or the back of the device. Spaces are ignored."
         >
-          <Input
-            id="retailer"
-            placeholder="e.g. Amazon"
-            aria-invalid={Boolean(errors.retailer)}
-            aria-describedby={describedBy("retailer", Boolean(errors.retailer))}
+          <IconInput
+            id="serialNumber"
+            icon={ScanBarcode}
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            placeholder="AWH-2026-7F3K9Q"
+            className="font-mono tracking-widest uppercase placeholder:tracking-widest"
+            aria-invalid={Boolean(errors.serialNumber)}
+            aria-describedby={describedBy("serialNumber", Boolean(errors.serialNumber))}
             disabled={isPending}
-            {...register("retailer")}
+            {...register("serialNumber")}
           />
         </FormField>
-      </div>
 
-      <Button type="submit" disabled={isPending} className="justify-self-start">
-        {isPending ? (
-          <Loader2 className="animate-spin" aria-hidden="true" />
-        ) : (
-          <ShieldCheck aria-hidden="true" />
-        )}
-        {isPending ? "Activating…" : "Activate warranty"}
-      </Button>
-    </form>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <FormField id="purchaseDate" label="Purchase date" error={errors.purchaseDate?.message}>
+            <IconInput
+              id="purchaseDate"
+              icon={CalendarDays}
+              type="date"
+              max={todayIso()}
+              aria-invalid={Boolean(errors.purchaseDate)}
+              aria-describedby={describedBy("purchaseDate", Boolean(errors.purchaseDate))}
+              disabled={isPending}
+              {...register("purchaseDate")}
+            />
+          </FormField>
+
+          <FormField
+            id="retailer"
+            label="Where did you buy it?"
+            error={errors.retailer?.message}
+            description="Optional"
+          >
+            <IconInput
+              id="retailer"
+              icon={Store}
+              placeholder="Amazon"
+              aria-invalid={Boolean(errors.retailer)}
+              aria-describedby={describedBy("retailer", Boolean(errors.retailer))}
+              disabled={isPending}
+              {...register("retailer")}
+            />
+          </FormField>
+        </div>
+
+        <Button type="submit" variant="brand" size="xl" disabled={isPending} className="w-full">
+          {isPending ? (
+            <Loader2 className="animate-spin" aria-hidden="true" />
+          ) : (
+            <ShieldCheck aria-hidden="true" />
+          )}
+          {isPending ? "Activating…" : "Activate my warranty"}
+        </Button>
+
+        <p className="text-muted-foreground text-center text-xs">
+          Each serial number can be registered once. Coverage starts on the purchase date.
+        </p>
+      </form>
+    </div>
   );
 }
