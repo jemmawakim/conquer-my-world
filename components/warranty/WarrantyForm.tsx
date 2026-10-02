@@ -77,19 +77,13 @@ export function WarrantyForm() {
   });
 
   return (
-    <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-14">
+    <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
       <div className="grid gap-4 lg:sticky lg:top-10">
         <WarrantyCard details={cardDetails} activated={showActivated} />
-        <p className="text-muted-foreground text-center text-xs">
-          Live preview: your card fills in as you type.
-        </p>
+        <p className="text-muted-foreground text-center text-xs">Your card updates as you type</p>
       </div>
 
-      <form
-        onSubmit={onSubmit}
-        noValidate
-        className="border-border bg-card/80 text-card-foreground grid gap-6 rounded-2xl border p-6 shadow-xl shadow-black/5 backdrop-blur-sm sm:p-8"
-      >
+      <form onSubmit={onSubmit} noValidate className="grid content-start gap-5">
         {feedback ? <FormMessage tone={feedback.tone} message={feedback.message} /> : null}
 
         <FormField id="productName" label="Product name" error={errors.productName?.message}>
@@ -125,7 +119,7 @@ export function WarrantyForm() {
           />
         </FormField>
 
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-5 sm:grid-cols-2">
           <FormField id="purchaseDate" label="Purchase date" error={errors.purchaseDate?.message}>
             <IconInput
               id="purchaseDate"
@@ -157,13 +151,18 @@ export function WarrantyForm() {
           </FormField>
         </div>
 
-        <Button type="submit" variant="brand" size="xl" disabled={isPending} className="w-full">
+        <Button
+          type="submit"
+          size="xl"
+          disabled={isPending}
+          className="mt-2 h-14 w-full rounded-full text-base font-semibold"
+        >
           {isPending ? (
             <Loader2 className="animate-spin" aria-hidden="true" />
           ) : (
             <ShieldCheck aria-hidden="true" />
           )}
-          {isPending ? "Activating…" : "Activate my warranty"}
+          {isPending ? "Activating…" : "Activate warranty"}
         </Button>
 
         <p className="text-muted-foreground text-center text-xs">

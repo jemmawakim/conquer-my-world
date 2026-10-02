@@ -74,75 +74,88 @@ export function WarrantyCard({ details, activated }: WarrantyCardProps) {
     >
       <motion.div
         style={{ rotateX, rotateY }}
-        className="from-brand via-brand to-brand-2 text-brand-foreground shadow-brand/30 relative aspect-[1.586] w-full overflow-hidden rounded-2xl bg-linear-135 p-6 shadow-2xl will-change-transform select-none sm:p-7"
+        className="from-brand/70 via-secondary to-background text-foreground relative aspect-[1.586] w-full overflow-hidden rounded-3xl bg-linear-150 p-6 shadow-2xl ring-1 shadow-black/60 ring-white/10 will-change-transform select-none ring-inset sm:p-7"
       >
-        {/* Decorative depth: soft orbs and a sheen that follows the pointer. */}
+        {/* Brushed-metal depth: a cool glow, a fine grain of light, and a pointer-following sheen. */}
         <div
           aria-hidden="true"
-          className="absolute -top-16 -right-10 size-56 rounded-full bg-white/15 blur-2xl"
+          className="bg-brand-2/25 absolute -top-24 -right-16 size-72 rounded-full blur-3xl"
         />
         <div
           aria-hidden="true"
-          className="absolute -bottom-20 -left-12 size-56 rounded-full bg-black/15 blur-2xl"
+          className="absolute inset-0 bg-[repeating-linear-gradient(115deg,transparent_0_2px,rgb(255_255_255/0.025)_2px_3px)]"
         />
         <motion.div
           aria-hidden="true"
           style={{ x: sheenX }}
-          className="absolute inset-y-0 -left-1/4 w-[150%] bg-linear-to-r from-transparent via-white/20 to-transparent opacity-60 mix-blend-overlay"
+          className="absolute inset-y-0 -left-1/4 w-[150%] bg-linear-to-r from-transparent via-white/10 to-transparent"
         />
 
-        <div className="relative flex h-full flex-col justify-between gap-4">
+        <div className="relative flex h-full flex-col justify-between">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck aria-hidden="true" className="size-5" />
-              <span className="text-xs font-semibold tracking-[0.2em] uppercase">Conquer Care</span>
-            </div>
-            <span className="rounded-full bg-white/20 px-2.5 py-1 text-[0.7rem] font-semibold tracking-wide backdrop-blur-sm">
-              {WARRANTY_MONTHS} MONTHS
+            <span className="text-lg font-bold tracking-tight">conquer</span>
+            <span className="text-muted-foreground text-xs font-medium tracking-wide">
+              {WARRANTY_MONTHS} months
             </span>
           </div>
 
-          <div className="grid gap-1.5">
-            <p
-              className={cn(
-                "truncate text-xl font-semibold tracking-tight sm:text-2xl",
-                !productName && "opacity-60",
-              )}
-            >
-              {productName || "Your product"}
-            </p>
-            <p
-              className={cn(
-                "truncate font-mono text-sm tracking-[0.18em] sm:text-base",
-                !serialNumber && "opacity-60",
-              )}
-            >
-              {serialNumber || "XXXX-XXXX-XXXX"}
-            </p>
+          {/* Card chip */}
+          <div
+            aria-hidden="true"
+            className="grid h-8 w-11 grid-cols-3 gap-px overflow-hidden rounded-md bg-linear-to-br from-white/60 to-white/25 p-px opacity-80"
+          >
+            {Array.from({ length: 6 }, (_, index) => (
+              <span key={index} className="rounded-[1px] bg-white/20" />
+            ))}
           </div>
 
-          <dl className="grid grid-cols-2 gap-4 text-xs">
-            <div className="grid gap-0.5">
-              <dt className="tracking-[0.15em] uppercase opacity-70">Purchased</dt>
-              <dd className="font-medium">{hasDate ? formatIsoDate(details.purchaseDate) : "—"}</dd>
+          <div className="grid gap-1">
+            <p
+              className={cn(
+                "truncate font-mono text-base tracking-[0.2em] sm:text-lg",
+                !serialNumber && "text-muted-foreground",
+              )}
+            >
+              {serialNumber || "•••• •••• ••••"}
+            </p>
+            <div className="flex items-end justify-between gap-4">
+              <p
+                className={cn(
+                  "min-w-0 truncate text-sm font-medium",
+                  !productName && "text-muted-foreground",
+                )}
+              >
+                {productName || "Your product"}
+              </p>
+              <dl className="flex shrink-0 gap-4 text-right text-[0.7rem]">
+                <div>
+                  <dt className="text-muted-foreground">From</dt>
+                  <dd className="font-medium tabular-nums">
+                    {hasDate ? formatIsoDate(details.purchaseDate) : "—"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Until</dt>
+                  <dd className="font-medium tabular-nums">
+                    {coveredUntil ? formatIsoDate(coveredUntil) : "—"}
+                  </dd>
+                </div>
+              </dl>
             </div>
-            <div className="grid gap-0.5 text-right">
-              <dt className="tracking-[0.15em] uppercase opacity-70">Covered until</dt>
-              <dd className="font-medium">{coveredUntil ? formatIsoDate(coveredUntil) : "—"}</dd>
-            </div>
-          </dl>
+          </div>
         </div>
 
         <AnimatePresence>
           {activated ? (
             <motion.div
               key="stamp"
-              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 2.2, rotate: -20 }}
-              animate={{ opacity: 1, scale: 1, rotate: -8 }}
+              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.6, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ type: "spring", stiffness: 380, damping: 18 }}
-              className="text-brand absolute bottom-5 left-1/2 -ml-[4.5rem] flex h-10 w-36 items-center justify-center rounded-md border-2 border-white bg-white text-sm font-black tracking-[0.2em] uppercase shadow-lg shadow-black/20 sm:bottom-6"
+              transition={{ type: "spring", stiffness: 420, damping: 22 }}
+              className="bg-success text-background shadow-success/30 absolute top-6 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold shadow-lg sm:top-7"
             >
+              <ShieldCheck aria-hidden="true" className="size-3.5" />
               Activated
             </motion.div>
           ) : null}
